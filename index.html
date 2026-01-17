@@ -981,13 +981,30 @@ C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O + 36-38 АТФ
       document.getElementById('explanation-3').classList.add('show');
     }
 
-    // Process content (demo)
+    // Process content - real text analysis
     function processContent() {
       const btn = event.target;
+      const textarea = document.querySelector('.text-input');
+      const text = textarea.value.trim();
+
+      if (!text) {
+        alert('Введите текст для обработки');
+        return;
+      }
+
       btn.textContent = '⏳ Обработка...';
       btn.disabled = true;
 
       setTimeout(() => {
+        // Analyze and process the text
+        const result = analyzeText(text);
+
+        // Update the content tab
+        updateContentTab(result);
+
+        // Update the testing tab
+        updateTestingTab(result);
+
         btn.textContent = '✅ Готово!';
         setTimeout(() => {
           btn.textContent = '🚀 Обработать материал';
@@ -995,7 +1012,334 @@ C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O + 36-38 АТФ
           // Switch to content tab
           document.querySelectorAll('.tab')[0].click();
         }, 1000);
-      }, 2000);
+      }, 1500);
+    }
+
+    // Analyze text and extract components
+    function analyzeText(text) {
+      const lines = text.split('\n').filter(l => l.trim());
+      const result = {
+        title: '',
+        paragraphs: [],
+        keyConcepts: [],
+        definitions: [],
+        formulas: [],
+        examples: [],
+        mnemonics: [],
+        quizQuestions: []
+      };
+
+      // Extract title from first line or main subject
+      const firstLine = lines[0] || '';
+      const titleMatch = firstLine.match(/^([А-ЯЁA-Z][а-яёa-z]+(?:\s+[а-яёa-z]+)*)/);
+      result.title = titleMatch ? titleMatch[1] : 'Учебный материал';
+
+      // Process each line
+      lines.forEach((line, idx) => {
+        const trimmedLine = line.trim();
+
+        // Check for formulas (chemical or math)
+        if (/[A-Z][a-z]?[₀-₉\d]+|[→←↔]|[+\-×÷=].*[+\-×÷=]/.test(trimmedLine) &&
+            !/^(Пример|Например|Example)/i.test(trimmedLine)) {
+          const formulaMatch = trimmedLine.match(/([A-Z][a-zA-Z₀-₉\d\s+→←↔\-]+[A-Z₀-₉\d\s]+)/);
+          if (formulaMatch) {
+            result.formulas.push(formulaMatch[1].trim());
+          }
+        }
+
+        // Check for examples
+        if (/^(Пример|Например|Example|Напр\.|E\.g\.)/i.test(trimmedLine) ||
+            trimmedLine.toLowerCase().includes('например')) {
+          result.examples.push(trimmedLine);
+        }
+
+        // Check for definitions (patterns like "X — это Y" or "X - это Y")
+        const defMatch = trimmedLine.match(/^([А-ЯЁA-Z][а-яёa-zA-Z\s]+)\s*[—\-–]\s*(это\s+)?(.+)/i);
+        if (defMatch && defMatch[3] && defMatch[3].length > 20) {
+          result.definitions.push({
+            term: defMatch[1].trim(),
+            definition: defMatch[3].trim()
+          });
+          result.keyConcepts.push(defMatch[1].trim());
+        }
+
+        // Extract key concepts (quoted terms, capitalized terms, bullet points)
+        const quotedTerms = trimmedLine.match(/«([^»]+)»|"([^"]+)"|'([^']+)'/g);
+        if (quotedTerms) {
+          quotedTerms.forEach(t => {
+            const clean = t.replace(/[«»""'']/g, '').trim();
+            if (clean.length > 2 && !result.keyConcepts.includes(clean)) {
+              result.keyConcepts.push(clean);
+            }
+          });
+        }
+
+        // Bullet points often contain key terms
+        if (/^[•\-\*]\s*/.test(trimmedLine)) {
+          const bulletMatch = trimmedLine.match(/^[•\-\*]\s*([А-ЯЁA-Z][а-яёa-zA-Z\s]+)\s*[—\-–]/);
+          if (bulletMatch) {
+            result.keyConcepts.push(bulletMatch[1].trim());
+          }
+        }
+
+        result.paragraphs.push(trimmedLine);
+      });
+
+      // Generate mnemonics based on content
+      result.mnemonics = generateMnemonics(result);
+
+      // Generate quiz questions
+      result.quizQuestions = generateQuizzes(result);
+
+      return result;
+    }
+
+    // Generate mnemonics from analyzed content
+    function generateMnemonics(data) {
+      const mnemonics = [];
+
+      // Create acronym if we have multiple key concepts
+      if (data.keyConcepts.length >= 3) {
+        const letters = data.keyConcepts.slice(0, 5).map(c => c[0].toUpperCase()).join('');
+        mnemonics.push({
+          type: 'Акроним',
+          icon: '💡',
+          text: letters,
+          explanation: data.keyConcepts.slice(0, 5).map(c => `${c[0].toUpperCase()} — ${c}`).join(', ')
+        });
+      }
+
+      // Create association for first definition
+      if (data.definitions.length > 0) {
+        const def = data.definitions[0];
+        mnemonics.push({
+          type: 'Ассоциация',
+          icon: '🔗',
+          text: `${def.term} = Запомни через образ`,
+          explanation: `${def.term}: ${def.definition.substring(0, 80)}...`
+        });
+      }
+
+      // Create rhythm/rhyme hint
+      if (data.formulas.length > 0) {
+        mnemonics.push({
+          type: 'Формула-подсказка',
+          icon: '🎵',
+          text: `«${data.formulas[0].substring(0, 40)}»`,
+          explanation: 'Повторяй формулу ритмично для лучшего запоминания'
+        });
+      }
+
+      return mnemonics;
+    }
+
+    // Generate quiz questions from content
+    function generateQuizzes(data) {
+      const quizzes = [];
+
+      // Multiple choice from definitions
+      data.definitions.forEach((def, idx) => {
+        if (idx < 2) {
+          const wrongAnswers = [
+            'Это не связано с данной темой',
+            'Другое научное понятие',
+            'Термин из другой области'
+          ];
+          quizzes.push({
+            type: 'multiple_choice',
+            question: `Что такое "${def.term}"?`,
+            options: [
+              { text: def.definition.substring(0, 100) + (def.definition.length > 100 ? '...' : ''), correct: true },
+              { text: wrongAnswers[0], correct: false },
+              { text: wrongAnswers[1], correct: false },
+              { text: wrongAnswers[2], correct: false }
+            ].sort(() => Math.random() - 0.5),
+            explanation: `${def.term} — ${def.definition}`
+          });
+        }
+      });
+
+      // Fill in blank from formulas
+      data.formulas.forEach((formula, idx) => {
+        if (idx < 1) {
+          quizzes.push({
+            type: 'fill_blank',
+            question: `Заполните формулу: ${formula.replace(/\d+/g, '___')}`,
+            answer: formula,
+            explanation: `Полная формула: ${formula}`
+          });
+        }
+      });
+
+      // True/False from key concepts
+      if (data.keyConcepts.length > 0) {
+        quizzes.push({
+          type: 'multiple_choice',
+          question: `Какое из понятий относится к изученной теме?`,
+          options: [
+            { text: data.keyConcepts[0], correct: true },
+            { text: 'Квантовая механика', correct: false },
+            { text: 'Теория относительности', correct: false },
+            { text: 'Молекулярная гастрономия', correct: false }
+          ].sort(() => Math.random() - 0.5),
+          explanation: `${data.keyConcepts[0]} — ключевое понятие данной темы`
+        });
+      }
+
+      return quizzes;
+    }
+
+    // Update content tab with processed text
+    function updateContentTab(data) {
+      const contentTab = document.getElementById('content-tab');
+
+      // Build highlighted text
+      let highlightedText = '';
+      data.paragraphs.forEach(para => {
+        let processed = escapeHtml(para);
+
+        // Highlight key concepts
+        data.keyConcepts.forEach(concept => {
+          const regex = new RegExp(`(${escapeRegExp(concept)})`, 'gi');
+          processed = processed.replace(regex, '<span class="highlight-key">$1</span>');
+        });
+
+        // Highlight formulas
+        data.formulas.forEach(formula => {
+          const escaped = escapeHtml(formula);
+          if (processed.includes(escaped)) {
+            processed = processed.replace(escaped, `<span class="highlight-formula">${escaped}</span>`);
+          }
+        });
+
+        // Highlight examples
+        if (/^(Пример|Например|Example)/i.test(para)) {
+          processed = `<span class="highlight-example">${processed}</span>`;
+        }
+
+        // Highlight definitions
+        data.definitions.forEach(def => {
+          const defText = escapeHtml(def.definition);
+          if (processed.includes(defText.substring(0, 50))) {
+            processed = processed.replace(
+              new RegExp(escapeRegExp(defText.substring(0, 50))),
+              `<span class="highlight-definition">${defText.substring(0, 50)}</span>`
+            );
+          }
+        });
+
+        if (/^[•\-\*]/.test(para)) {
+          highlightedText += `<li style="margin-left: 20px; margin-bottom: 8px;">${processed.replace(/^[•\-\*]\s*/, '')}</li>`;
+        } else {
+          highlightedText += `<p>${processed}</p>`;
+        }
+      });
+
+      // Build mnemonics HTML
+      let mnemonicsHtml = '';
+      data.mnemonics.forEach(m => {
+        mnemonicsHtml += `
+          <div class="mnemonic-card">
+            <div class="mnemonic-title">${m.icon} ${m.type}</div>
+            <div class="mnemonic-text">${escapeHtml(m.text)}</div>
+            <div class="mnemonic-explanation">${escapeHtml(m.explanation)}</div>
+          </div>
+        `;
+      });
+
+      contentTab.innerHTML = `
+        <div class="legend">
+          <div class="legend-item">
+            <div class="legend-color" style="background: rgba(255, 213, 0, 0.5);"></div>
+            Ключевые понятия
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background: rgba(88, 166, 255, 0.5);"></div>
+            Определения
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background: rgba(163, 113, 247, 0.5);"></div>
+            Формулы
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background: rgba(63, 185, 80, 0.5);"></div>
+            Примеры
+          </div>
+        </div>
+
+        <div class="content-section">
+          <h3 class="section-title">🔬 ${escapeHtml(data.title)}</h3>
+          <div class="content-text">
+            ${highlightedText}
+          </div>
+        </div>
+
+        <div class="content-section">
+          <h3 class="section-title">🧠 Мнемоники для запоминания</h3>
+          ${mnemonicsHtml || '<p style="color: #8b949e;">Добавьте больше контента для генерации мнемоник</p>'}
+        </div>
+      `;
+    }
+
+    // Update testing tab with generated quizzes
+    function updateTestingTab(data) {
+      const testingTab = document.getElementById('testing-tab');
+
+      if (data.quizQuestions.length === 0) {
+        testingTab.innerHTML = '<p style="color: #8b949e; padding: 20px;">Добавьте текст с определениями и понятиями для генерации тестов</p>';
+        return;
+      }
+
+      let quizzesHtml = '';
+      data.quizQuestions.forEach((quiz, idx) => {
+        if (quiz.type === 'multiple_choice') {
+          let optionsHtml = '';
+          const labels = ['A', 'B', 'C', 'D'];
+          quiz.options.forEach((opt, optIdx) => {
+            optionsHtml += `
+              <div class="quiz-option" onclick="selectOption(this, ${idx + 1}, ${opt.correct})">
+                <div class="option-marker">${labels[optIdx]}</div>
+                <span>${escapeHtml(opt.text)}</span>
+              </div>
+            `;
+          });
+
+          quizzesHtml += `
+            <div class="quiz-card">
+              <div class="quiz-type">Multiple Choice</div>
+              <div class="quiz-question">${idx + 1}. ${escapeHtml(quiz.question)}</div>
+              <div class="quiz-options">${optionsHtml}</div>
+              <div class="quiz-explanation" id="explanation-${idx + 1}">
+                ✅ <strong>Объяснение:</strong> ${escapeHtml(quiz.explanation)}
+              </div>
+            </div>
+          `;
+        } else if (quiz.type === 'fill_blank') {
+          quizzesHtml += `
+            <div class="quiz-card">
+              <div class="quiz-type">Fill in the Blank</div>
+              <div class="quiz-question">${idx + 1}. ${escapeHtml(quiz.question)}</div>
+              <div class="quiz-explanation" id="explanation-${idx + 1}">
+                ✅ <strong>Ответ:</strong> ${escapeHtml(quiz.explanation)}
+              </div>
+            </div>
+          `;
+        }
+      });
+
+      testingTab.innerHTML = quizzesHtml;
+    }
+
+    // Helper: escape HTML
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // Helper: escape regex special chars
+    function escapeRegExp(string) {
+      return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     }
 
     // File upload handler
