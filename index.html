@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Memory Boost - Ускоренное обучение</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0d1117;
+      color: #c9d1d9;
+      min-height: 100vh;
+    }
+
+    /* Header */
+    .header {
+      background: #161b22;
+      border-bottom: 1px solid #30363d;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 20px;
+      font-weight: 600;
+      color: #58a6ff;
+    }
+
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, #58a6ff, #a371f7);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #8b949e;
+    }
+
+    /* Main Layout */
+    .main-container {
+      display: flex;
+      height: calc(100vh - 65px);
+    }
+
+    /* Left Panel */
+    .left-panel {
+      width: 400px;
+      background: #161b22;
+      border-right: 1px solid #30363d;
+      padding: 24px;
+      overflow-y: auto;
+    }
+
+    .panel-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      color: #f0f6fc;
+    }
+
+    .upload-zone {
+      border: 2px dashed #30363d;
+      border-radius: 12px;
+      padding: 40px 20px;
+      text-align: center;
+      margin-bottom: 20px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .upload-zone:hover {
+      border-color: #58a6ff;
+      background: rgba(88, 166, 255, 0.1);
+    }
+
+    .upload-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+
+    .upload-text {
+      color: #8b949e;
+      margin-bottom: 8px;
+    }
+
+    .upload-formats {
+      font-size: 12px;
+      color: #6e7681;
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      margin: 20px 0;
+      color: #6e7681;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #30363d;
+    }
+
+    .divider span {
+      padding: 0 16px;
+      font-size: 12px;
+    }
+
+    .text-input {
+      width: 100%;
+      height: 200px;
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 16px;
+      color: #c9d1d9;
+      font-size: 14px;
+      resize: none;
+      margin-bottom: 16px;
+    }
+
+    .text-input:focus {
+      outline: none;
+      border-color: #58a6ff;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: none;
+    }
+
+    .btn-primary {
+      background: #238636;
+      color: white;
+      width: 100%;
+    }
+
+    .btn-primary:hover {
+      background: #2ea043;
+    }
+
+    .btn-secondary {
+      background: #21262d;
+      color: #c9d1d9;
+      border: 1px solid #30363d;
+    }
+
+    .btn-secondary:hover {
+      background: #30363d;
+    }
+
+    /* Right Panel */
+    .right-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      background: #161b22;
+      border-bottom: 1px solid #30363d;
+      padding: 0 24px;
+    }
+
+    .tab {
+      padding: 16px 24px;
+      color: #8b949e;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s ease;
+    }
+
+    .tab:hover {
+      color: #c9d1d9;
+    }
+
+    .tab.active {
+      color: #f0f6fc;
+      border-bottom-color: #f78166;
+    }
+
+    .tab-content {
+      flex: 1;
+      padding: 24px;
+      overflow-y: auto;
+    }
+
+    .tab-pane {
+      display: none;
+    }
+
+    .tab-pane.active {
+      display: block;
+    }
+
+    /* Content Formatting */
+    .content-section {
+      background: #161b22;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .highlight-key {
+      background: rgba(255, 213, 0, 0.2);
+      border-left: 3px solid #ffd500;
+      padding: 2px 8px;
+      border-radius: 0 4px 4px 0;
+    }
+
+    .highlight-definition {
+      background: rgba(88, 166, 255, 0.2);
+      border-left: 3px solid #58a6ff;
+      padding: 2px 8px;
+      border-radius: 0 4px 4px 0;
+    }
+
+    .highlight-formula {
+      background: rgba(163, 113, 247, 0.2);
+      border-left: 3px solid #a371f7;
+      padding: 2px 8px;
+      border-radius: 0 4px 4px 0;
+      font-family: 'Monaco', monospace;
+    }
+
+    .highlight-example {
+      background: rgba(63, 185, 80, 0.2);
+      border-left: 3px solid #3fb950;
+      padding: 2px 8px;
+      border-radius: 0 4px 4px 0;
+    }
+
+    .content-text {
+      line-height: 1.8;
+      font-size: 15px;
+    }
+
+    .content-text p {
+      margin-bottom: 16px;
+    }
+
+    /* Legend */
+    .legend {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #8b949e;
+    }
+
+    .legend-color {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+    }
+
+    /* Mnemonic Card */
+    .mnemonic-card {
+      background: linear-gradient(135deg, #1a1f35, #252d4a);
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .mnemonic-title {
+      color: #a371f7;
+      font-weight: 600;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .mnemonic-text {
+      font-size: 18px;
+      color: #f0f6fc;
+      margin-bottom: 8px;
+    }
+
+    .mnemonic-explanation {
+      font-size: 13px;
+      color: #8b949e;
+    }
+
+    /* Quiz */
+    .quiz-card {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    .quiz-question {
+      font-size: 16px;
+      margin-bottom: 16px;
+      color: #f0f6fc;
+    }
+
+    .quiz-type {
+      font-size: 12px;
+      color: #8b949e;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+    }
+
+    .quiz-options {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .quiz-option {
+      padding: 14px 16px;
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .quiz-option:hover {
+      border-color: #58a6ff;
+      background: rgba(88, 166, 255, 0.1);
+    }
+
+    .quiz-option.correct {
+      border-color: #3fb950;
+      background: rgba(63, 185, 80, 0.1);
+    }
+
+    .quiz-option.incorrect {
+      border-color: #f85149;
+      background: rgba(248, 81, 73, 0.1);
+    }
+
+    .quiz-option.selected {
+      border-color: #58a6ff;
+      background: rgba(88, 166, 255, 0.15);
+    }
+
+    .option-marker {
+      width: 24px;
+      height: 24px;
+      border: 2px solid #30363d;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .quiz-option.selected .option-marker {
+      border-color: #58a6ff;
+      background: #58a6ff;
+      color: white;
+    }
+
+    .quiz-explanation {
+      margin-top: 16px;
+      padding: 16px;
+      background: rgba(88, 166, 255, 0.1);
+      border-radius: 8px;
+      font-size: 14px;
+      display: none;
+    }
+
+    .quiz-explanation.show {
+      display: block;
+    }
+
+    /* Fill in blank */
+    .fill-blank-input {
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 4px;
+      padding: 4px 12px;
+      color: #58a6ff;
+      font-size: 14px;
+      width: 150px;
+      text-align: center;
+    }
+
+    .fill-blank-input:focus {
+      outline: none;
+      border-color: #58a6ff;
+    }
+
+    .fill-blank-input.correct {
+      border-color: #3fb950;
+      background: rgba(63, 185, 80, 0.1);
+    }
+
+    .fill-blank-input.incorrect {
+      border-color: #f85149;
+      background: rgba(248, 81, 73, 0.1);
+    }
+
+    /* Progress */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 36px;
+      font-weight: 700;
+      color: #58a6ff;
+      margin-bottom: 4px;
+    }
+
+    .stat-label {
+      font-size: 13px;
+      color: #8b949e;
+    }
+
+    /* Forgetting Curve */
+    .curve-container {
+      background: #161b22;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    .curve-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .curve-chart {
+      height: 200px;
+      position: relative;
+      border-left: 2px solid #30363d;
+      border-bottom: 2px solid #30363d;
+      margin: 20px 0;
+    }
+
+    .curve-line {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 100%;
+    }
+
+    .curve-svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .review-schedule {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .review-item {
+      padding: 8px 16px;
+      background: #21262d;
+      border-radius: 20px;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .review-item.completed {
+      background: rgba(63, 185, 80, 0.2);
+      color: #3fb950;
+    }
+
+    .review-item.upcoming {
+      background: rgba(88, 166, 255, 0.2);
+      color: #58a6ff;
+    }
+
+    /* Mastery Progress */
+    .mastery-section {
+      background: #161b22;
+      border-radius: 12px;
+      padding: 24px;
+    }
+
+    .mastery-item {
+      margin-bottom: 16px;
+    }
+
+    .mastery-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .mastery-label {
+      font-size: 14px;
+    }
+
+    .mastery-percent {
+      font-size: 14px;
+      color: #58a6ff;
+    }
+
+    .mastery-bar {
+      height: 8px;
+      background: #21262d;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .mastery-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+
+    .mastery-fill.high {
+      background: linear-gradient(90deg, #3fb950, #56d364);
+    }
+
+    .mastery-fill.medium {
+      background: linear-gradient(90deg, #58a6ff, #79c0ff);
+    }
+
+    .mastery-fill.low {
+      background: linear-gradient(90deg, #f78166, #ffa657);
+    }
+
+    /* Demo Badge */
+    .demo-badge {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: linear-gradient(135deg, #a371f7, #58a6ff);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      z-index: 100;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="logo">
+      <div class="logo-icon">⚡</div>
+      Memory Boost
+    </div>
+    <div class="user-info">
+      <span>Демо-режим</span>
+      <div style="width: 32px; height: 32px; background: #30363d; border-radius: 50%;"></div>
+    </div>
+  </header>
+
+  <div class="main-container">
+    <!-- Left Panel -->
+    <aside class="left-panel">
+      <h2 class="panel-title">📚 Загрузка материала</h2>
+
+      <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
+        <div class="upload-icon">📄</div>
+        <div class="upload-text">Перетащите файл или нажмите для выбора</div>
+        <div class="upload-formats">PDF, PNG, JPG до 10MB</div>
+        <input type="file" id="fileInput" hidden accept=".pdf,.png,.jpg,.jpeg">
+      </div>
+
+      <div class="divider"><span>или</span></div>
+
+      <textarea class="text-input" placeholder="Вставьте текст для обработки...">Митохондрии — это органеллы, обнаруженные в цитоплазме эукариотических клеток. Они часто называются «электростанциями клетки», потому что генерируют большую часть клеточного АТФ (аденозинтрифосфата), используемого в качестве источника химической энергии.
+
+Митохондрии имеют двойную мембранную структуру:
+• Внешняя мембрана — гладкая, содержит порины
+• Внутренняя мембрана — складчатая, образует кристы
+
+Формула клеточного дыхания:
+C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O + 36-38 АТФ
+
+Пример: Мышечные клетки содержат много митохондрий, потому что требуют большого количества энергии для сокращения.</textarea>
+
+      <button class="btn btn-primary" onclick="processContent()">🚀 Обработать материал</button>
+    </aside>
+
+    <!-- Right Panel -->
+    <main class="right-panel">
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab('content')">📝 Форматированный контент</div>
+        <div class="tab" onclick="switchTab('testing')">✅ Тестирование</div>
+        <div class="tab" onclick="switchTab('progress')">📊 Прогресс</div>
+      </div>
+
+      <div class="tab-content">
+        <!-- Content Tab -->
+        <div id="content-tab" class="tab-pane active">
+          <div class="legend">
+            <div class="legend-item">
+              <div class="legend-color" style="background: rgba(255, 213, 0, 0.5);"></div>
+              Ключевые понятия
+            </div>
+            <div class="legend-item">
+              <div class="legend-color" style="background: rgba(88, 166, 255, 0.5);"></div>
+              Определения
+            </div>
+            <div class="legend-item">
+              <div class="legend-color" style="background: rgba(163, 113, 247, 0.5);"></div>
+              Формулы
+            </div>
+            <div class="legend-item">
+              <div class="legend-color" style="background: rgba(63, 185, 80, 0.5);"></div>
+              Примеры
+            </div>
+          </div>
+
+          <div class="content-section">
+            <h3 class="section-title">🔬 Митохондрии</h3>
+            <div class="content-text">
+              <p>
+                <span class="highlight-key">Митохондрии</span> — это
+                <span class="highlight-definition">органеллы, обнаруженные в цитоплазме эукариотических клеток</span>.
+                Они часто называются <span class="highlight-key">«электростанциями клетки»</span>, потому что генерируют большую часть клеточного
+                <span class="highlight-key">АТФ (аденозинтрифосфата)</span>, используемого в качестве источника химической энергии.
+              </p>
+              <p>
+                Митохондрии имеют <span class="highlight-key">двойную мембранную структуру</span>:
+              </p>
+              <ul style="margin-left: 20px; margin-bottom: 16px;">
+                <li><span class="highlight-definition">Внешняя мембрана</span> — гладкая, содержит порины</li>
+                <li><span class="highlight-definition">Внутренняя мембрана</span> — складчатая, образует <span class="highlight-key">кристы</span></li>
+              </ul>
+              <p>
+                <strong>Формула клеточного дыхания:</strong><br>
+                <span class="highlight-formula">C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O + 36-38 АТФ</span>
+              </p>
+              <p>
+                <span class="highlight-example">Пример: Мышечные клетки содержат много митохондрий, потому что требуют большого количества энергии для сокращения.</span>
+              </p>
+            </div>
+          </div>
+
+          <div class="content-section">
+            <h3 class="section-title">🧠 Мнемоники для запоминания</h3>
+
+            <div class="mnemonic-card">
+              <div class="mnemonic-title">💡 Акроним: МИТЯ</div>
+              <div class="mnemonic-text">М-ембраны И-меют Т-ри Я-руса</div>
+              <div class="mnemonic-explanation">Внешняя мембрана → Межмембранное пространство → Внутренняя мембрана (кристы)</div>
+            </div>
+
+            <div class="mnemonic-card">
+              <div class="mnemonic-title">🔗 Ассоциация</div>
+              <div class="mnemonic-text">Митохондрии = Мини-электростанции</div>
+              <div class="mnemonic-explanation">Как электростанция вырабатывает электричество для города, митохондрии производят АТФ для клетки</div>
+            </div>
+
+            <div class="mnemonic-card">
+              <div class="mnemonic-title">🎵 Ритм</div>
+              <div class="mnemonic-text">«Глюкоза + кислород = вода, углекислый газ и энергия!»</div>
+              <div class="mnemonic-explanation">Запоминаем формулу клеточного дыхания через ритмичную фразу</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Testing Tab -->
+        <div id="testing-tab" class="tab-pane">
+          <div class="quiz-card">
+            <div class="quiz-type">Multiple Choice</div>
+            <div class="quiz-question">1. Почему митохондрии называют «электростанциями клетки»?</div>
+            <div class="quiz-options">
+              <div class="quiz-option" onclick="selectOption(this, 1, false)">
+                <div class="option-marker">A</div>
+                <span>Они производят электричество</span>
+              </div>
+              <div class="quiz-option" onclick="selectOption(this, 1, true)">
+                <div class="option-marker">B</div>
+                <span>Они генерируют АТФ — источник энергии для клетки</span>
+              </div>
+              <div class="quiz-option" onclick="selectOption(this, 1, false)">
+                <div class="option-marker">C</div>
+                <span>Они имеют форму батарейки</span>
+              </div>
+              <div class="quiz-option" onclick="selectOption(this, 1, false)">
+                <div class="option-marker">D</div>
+                <span>Они светятся в темноте</span>
+              </div>
+            </div>
+            <div class="quiz-explanation" id="explanation-1">
+              ✅ <strong>Правильно!</strong> Митохондрии производят АТФ (аденозинтрифосфат) через процесс клеточного дыхания. АТФ — это универсальная «энергетическая валюта» клетки, необходимая для всех энергозависимых процессов.
+            </div>
+          </div>
+
+          <div class="quiz-card">
+            <div class="quiz-type">Multiple Choice</div>
+            <div class="quiz-question">2. Как называются складки внутренней мембраны митохондрий?</div>
+            <div class="quiz-options">
+              <div class="quiz-option" onclick="selectOption(this, 2, false)">
+                <div class="option-marker">A</div>
+                <span>Тилакоиды</span>
+              </div>
+              <div class="quiz-option" onclick="selectOption(this, 2, false)">
+                <div class="option-marker">B</div>
+                <span>Рибосомы</span>
+              </div>
+              <div class="quiz-option" onclick="selectOption(this, 2, true)">
+                <div class="option-marker">C</div>
+                <span>Кристы</span>
+              </div>
+              <div class="quiz-option" onclick="selectOption(this, 2, false)">
+                <div class="option-marker">D</div>
+                <span>Вакуоли</span>
+              </div>
+            </div>
+            <div class="quiz-explanation" id="explanation-2">
+              ✅ <strong>Правильно!</strong> Кристы — это складки внутренней мембраны митохондрий. Они увеличивают площадь поверхности для размещения ферментов, участвующих в синтезе АТФ.
+            </div>
+          </div>
+
+          <div class="quiz-card">
+            <div class="quiz-type">Fill in the Blank</div>
+            <div class="quiz-question">
+              3. Заполните пропуски в формуле клеточного дыхания:<br><br>
+              <span style="font-family: monospace; font-size: 16px;">
+                C₆H₁₂O₆ + <input type="text" class="fill-blank-input" id="blank1" placeholder="?"> O₂ →
+                <input type="text" class="fill-blank-input" id="blank2" placeholder="?"> CO₂ + 6H₂O + 36-38 АТФ
+              </span>
+            </div>
+            <button class="btn btn-secondary" onclick="checkBlanks()" style="margin-top: 16px;">Проверить</button>
+            <div class="quiz-explanation" id="explanation-3">
+              ✅ <strong>Правильно!</strong> Полная формула: C₆H₁₂O₆ + <strong>6</strong>O₂ → <strong>6</strong>CO₂ + 6H₂O + 36-38 АТФ. Коэффициенты показывают, что для окисления одной молекулы глюкозы требуется 6 молекул кислорода.
+            </div>
+          </div>
+
+          <div class="quiz-card">
+            <div class="quiz-type">Multiple Choice</div>
+            <div class="quiz-question">4. В каких клетках особенно много митохондрий?</div>
+            <div class="quiz-options">
+              <div class="quiz-option" onclick="selectOption(this, 4, false)">
+                <div class="option-marker">A</div>
+                <span>Эритроциты (красные кровяные клетки)</span>
+              </div>
+              <div class="quiz-option" onclick="selectOption(this, 4, true)">
+                <div class="option-marker">B</div>
+                <span>Мышечные клетки</span>
+              </div>
+              <div class="quiz-option" onclick="selectOption(this, 4, false)">
+                <div class="option-marker">C</div>
+                <span>Жировые клетки</span>
+              </div>
+              <div class="quiz-option" onclick="selectOption(this, 4, false)">
+                <div class="option-marker">D</div>
+                <span>Клетки кожи</span>
+              </div>
+            </div>
+            <div class="quiz-explanation" id="explanation-4">
+              ✅ <strong>Правильно!</strong> Мышечные клетки содержат особенно много митохондрий, так как мышечное сокращение требует большого количества энергии (АТФ). Интересно, что эритроциты вообще не содержат митохондрий!
+            </div>
+          </div>
+        </div>
+
+        <!-- Progress Tab -->
+        <div id="progress-tab" class="tab-pane">
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-value">87%</div>
+              <div class="stat-label">Общий прогресс</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value">12</div>
+              <div class="stat-label">Изученных карточек</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value">3</div>
+              <div class="stat-label">Дней подряд</div>
+            </div>
+          </div>
+
+          <div class="curve-container">
+            <h3 class="curve-title">📉 Кривая забывания Эббингауза</h3>
+            <div class="curve-chart">
+              <svg class="curve-svg" viewBox="0 0 400 200" preserveAspectRatio="none">
+                <!-- Without review curve (red) -->
+                <path d="M 0 20 Q 100 80, 200 150 T 400 180" fill="none" stroke="#f85149" stroke-width="2" stroke-dasharray="5,5"/>
+                <!-- With review curve (green) -->
+                <path d="M 0 20 L 50 20 L 50 40 L 100 40 L 100 30 L 150 30 L 150 50 L 200 50 L 200 35 L 250 35 L 250 55 L 300 55 L 300 40 L 350 40 L 350 60 L 400 60" fill="none" stroke="#3fb950" stroke-width="2"/>
+                <!-- Labels -->
+                <text x="10" y="195" fill="#8b949e" font-size="10">День 1</text>
+                <text x="190" y="195" fill="#8b949e" font-size="10">День 7</text>
+                <text x="380" y="195" fill="#8b949e" font-size="10">День 30</text>
+              </svg>
+            </div>
+            <div style="display: flex; gap: 20px; justify-content: center; margin-top: 10px;">
+              <div class="legend-item">
+                <div class="legend-color" style="background: #f85149;"></div>
+                Без повторения
+              </div>
+              <div class="legend-item">
+                <div class="legend-color" style="background: #3fb950;"></div>
+                С интервальным повторением
+              </div>
+            </div>
+          </div>
+
+          <div class="content-section">
+            <h3 class="section-title">📅 График повторений (SM-2)</h3>
+            <div class="review-schedule">
+              <div class="review-item completed">✓ Сегодня</div>
+              <div class="review-item completed">✓ Через 1 день</div>
+              <div class="review-item completed">✓ Через 3 дня</div>
+              <div class="review-item upcoming">→ Через 7 дней</div>
+              <div class="review-item">Через 14 дней</div>
+              <div class="review-item">Через 30 дней</div>
+            </div>
+          </div>
+
+          <div class="mastery-section">
+            <h3 class="section-title">🎯 Уровень освоения тем</h3>
+
+            <div class="mastery-item">
+              <div class="mastery-header">
+                <span class="mastery-label">Структура митохондрий</span>
+                <span class="mastery-percent">92%</span>
+              </div>
+              <div class="mastery-bar">
+                <div class="mastery-fill high" style="width: 92%;"></div>
+              </div>
+            </div>
+
+            <div class="mastery-item">
+              <div class="mastery-header">
+                <span class="mastery-label">Клеточное дыхание</span>
+                <span class="mastery-percent">78%</span>
+              </div>
+              <div class="mastery-bar">
+                <div class="mastery-fill medium" style="width: 78%;"></div>
+              </div>
+            </div>
+
+            <div class="mastery-item">
+              <div class="mastery-header">
+                <span class="mastery-label">Формулы и коэффициенты</span>
+                <span class="mastery-percent">45%</span>
+              </div>
+              <div class="mastery-bar">
+                <div class="mastery-fill low" style="width: 45%;"></div>
+              </div>
+            </div>
+
+            <div class="mastery-item">
+              <div class="mastery-header">
+                <span class="mastery-label">Примеры применения</span>
+                <span class="mastery-percent">85%</span>
+              </div>
+              <div class="mastery-bar">
+                <div class="mastery-fill high" style="width: 85%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="demo-badge">🎭 Интерактивный прототип</div>
+
+  <script>
+    // Tab switching
+    function switchTab(tabName) {
+      // Update tab buttons
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+      event.target.classList.add('active');
+
+      // Update tab content
+      document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+      document.getElementById(tabName + '-tab').classList.add('active');
+    }
+
+    // Quiz option selection
+    function selectOption(element, questionNum, isCorrect) {
+      const options = element.parentElement.querySelectorAll('.quiz-option');
+      options.forEach(opt => opt.classList.remove('selected', 'correct', 'incorrect'));
+
+      element.classList.add('selected');
+
+      setTimeout(() => {
+        if (isCorrect) {
+          element.classList.add('correct');
+        } else {
+          element.classList.add('incorrect');
+          // Show correct answer
+          options.forEach(opt => {
+            if (opt.onclick.toString().includes('true')) {
+              opt.classList.add('correct');
+            }
+          });
+        }
+        document.getElementById('explanation-' + questionNum).classList.add('show');
+      }, 500);
+    }
+
+    // Check fill in the blanks
+    function checkBlanks() {
+      const blank1 = document.getElementById('blank1');
+      const blank2 = document.getElementById('blank2');
+
+      blank1.classList.remove('correct', 'incorrect');
+      blank2.classList.remove('correct', 'incorrect');
+
+      if (blank1.value.trim() === '6') {
+        blank1.classList.add('correct');
+      } else {
+        blank1.classList.add('incorrect');
+        blank1.value = '6';
+      }
+
+      if (blank2.value.trim() === '6') {
+        blank2.classList.add('correct');
+      } else {
+        blank2.classList.add('incorrect');
+        blank2.value = '6';
+      }
+
+      document.getElementById('explanation-3').classList.add('show');
+    }
+
+    // Process content (demo)
+    function processContent() {
+      const btn = event.target;
+      btn.textContent = '⏳ Обработка...';
+      btn.disabled = true;
+
+      setTimeout(() => {
+        btn.textContent = '✅ Готово!';
+        setTimeout(() => {
+          btn.textContent = '🚀 Обработать материал';
+          btn.disabled = false;
+          // Switch to content tab
+          document.querySelectorAll('.tab')[0].click();
+        }, 1000);
+      }, 2000);
+    }
+
+    // File upload handler
+    document.getElementById('fileInput').addEventListener('change', function(e) {
+      if (e.target.files.length > 0) {
+        const fileName = e.target.files[0].name;
+        document.querySelector('.upload-text').textContent = '📎 ' + fileName;
+      }
+    });
+  </script>
+</body>
+</html>
