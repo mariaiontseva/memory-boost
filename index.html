@@ -1345,10 +1345,88 @@ C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O + 36-38 АТФ
     // File upload handler
     document.getElementById('fileInput').addEventListener('change', function(e) {
       if (e.target.files.length > 0) {
-        const fileName = e.target.files[0].name;
-        document.querySelector('.upload-text').textContent = '📎 ' + fileName;
+        const file = e.target.files[0];
+        const fileName = file.name;
+        const fileExt = fileName.split('.').pop().toLowerCase();
+
+        document.querySelector('.upload-text').textContent = '⏳ Загрузка ' + fileName + '...';
+
+        // Handle text files
+        if (fileExt === 'txt') {
+          const reader = new FileReader();
+          reader.onload = function(event) {
+            document.querySelector('.text-input').value = event.target.result;
+            document.querySelector('.upload-text').textContent = '✅ ' + fileName + ' загружен';
+          };
+          reader.onerror = function() {
+            document.querySelector('.upload-text').textContent = '❌ Ошибка чтения файла';
+          };
+          reader.readAsText(file);
+        }
+        // Handle PDF files
+        else if (fileExt === 'pdf') {
+          document.querySelector('.upload-text').textContent = '📎 ' + fileName;
+          // Try to extract text from PDF using pdf.js
+          extractPdfText(file);
+        }
+        // Handle images
+        else if (['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(fileExt)) {
+          document.querySelector('.upload-text').textContent = '📎 ' + fileName;
+          alert('🖼️ Изображения: В демо-версии OCR недоступен.\n\nВ полной версии Memory Boost изображения обрабатываются с помощью Claude Vision API для извлечения текста.\n\nПока вы можете скопировать текст вручную в поле ниже.');
+        }
+        else {
+          document.querySelector('.upload-text').textContent = '❌ Неподдерживаемый формат';
+          alert('Поддерживаемые форматы: TXT, PDF, PNG, JPG');
+        }
       }
     });
+
+    // Extract text from PDF using PDF.js
+    async function extractPdfText(file) {
+      // Load PDF.js dynamically if not loaded
+      if (typeof pdfjsLib === 'undefined') {
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+        script.onload = () => {
+          pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+          processPdf(file);
+        };
+        script.onerror = () => {
+          alert('📄 PDF: Не удалось загрузить библиотеку PDF.js.\n\nВ полной версии Memory Boost PDF файлы обрабатываются на сервере.\n\nПока вы можете скопировать текст из PDF вручную.');
+          document.querySelector('.upload-text').textContent = '📎 ' + file.name + ' (требуется ручной ввод)';
+        };
+        document.head.appendChild(script);
+      } else {
+        processPdf(file);
+      }
+    }
+
+    async function processPdf(file) {
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        let fullText = '';
+
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const textContent = await page.getTextContent();
+          const pageText = textContent.items.map(item => item.str).join(' ');
+          fullText += pageText + '\n\n';
+        }
+
+        if (fullText.trim()) {
+          document.querySelector('.text-input').value = fullText.trim();
+          document.querySelector('.upload-text').textContent = '✅ ' + file.name + ' загружен (' + pdf.numPages + ' стр.)';
+        } else {
+          alert('📄 PDF не содержит текстового слоя (возможно, это скан).\n\nВ полной версии Memory Boost такие PDF обрабатываются с помощью OCR.\n\nПока вы можете скопировать текст вручную.');
+          document.querySelector('.upload-text').textContent = '📎 ' + file.name + ' (скан, требуется OCR)';
+        }
+      } catch (error) {
+        console.error('PDF error:', error);
+        alert('❌ Ошибка чтения PDF.\n\nПопробуйте скопировать текст вручную.');
+        document.querySelector('.upload-text').textContent = '❌ Ошибка чтения ' + file.name;
+      }
+    }
   </script>
 </body>
 </html>
